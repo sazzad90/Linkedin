@@ -1,0 +1,6 @@
+/* HomePage.css */
+.homepage-container {
+    height: 80vh; /* Adjust the height as needed */
+    overflow-y: scroll;
+  }
+  
