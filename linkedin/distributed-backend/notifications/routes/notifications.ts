@@ -3,6 +3,7 @@ let  Post = require('../models/posts.model');
 const authenticateToken2 = require('../middlewares/authenticateToken');
 const router = require('express').Router();
 import { Request, Response} from 'express';
+require('dotenv').config();
 
 interface CustomRequest extends Request {
     email: string; // Change the type to match the data type of 'email'
@@ -19,7 +20,7 @@ router.route('/getNotifications').get(authenticateToken2 ,async (req: CustomRequ
         notifications.reverse();
 
         const notificationsWithUsername = await Promise.all(
-            notifications.map(async (notification) => {
+            notifications.map(async (notification:any) => {
                 const post = await Post.findOne({ _id: notification.postId });      
                 return { 
                     ...notification.toObject(), 
@@ -60,7 +61,7 @@ router.route('/checkedNotifications').post(authenticateToken2 ,async (req: Custo
         console.log('checkedNotification: ' + checkedNotification);
         res.json(checkedNotification);
     }catch(err){
-        res.status(404).json({message: err.message});
+        res.status(404).json({message: err});
     }
 })
 

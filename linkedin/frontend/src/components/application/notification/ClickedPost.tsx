@@ -14,7 +14,7 @@ const ClickedPost:React.FC=()=> {
     try {
         const accessToken = sessionStorage.getItem('accessToken')
         console.log("accessToken : ", accessToken);   
-         const response = await axios.post("http://localhost:5050/notifications/getClickedPost",{
+         const response = await axios.post("http://localhost:5051/posts/getClickedPost",{
             postId:postId,
          },{
           headers: {

@@ -1,6 +1,7 @@
 let  Post = require('../models/posts.model');
 let User = require('../models/users.model');
 let  notification = require('../models/notifications.model');
+require('dotenv').config();
 
 const router = require('express').Router();
 const authenticateToken = require('../middlewares/authenticateToken');
@@ -11,12 +12,12 @@ const minioClient = require('../minio/minioClient')
 import { Request, Response} from 'express';
 
 const storage = multer.diskStorage({
-  destination : (req, file, cb)=>{
+  destination : (req:any, file:any, cb:any)=>{
       console.log(file)
       // console.log("original name : ", file.originalname)
       cb(null, './public/images')
   },
-  filename :(req,file, cb) => {
+  filename :(req:any,file:any, cb:any) => {
       const newFilename = Date.now() + path.extname(file.originalname);
       // console.log('filename : ', newFilename)
       cb(null, newFilename)
@@ -26,7 +27,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage: storage})
 
-async function uploadToMinio(file) {
+async function uploadToMinio(file:any) {
   const bucketName = "linkedin";
   console.log('checking filenname: ', file.filename);
   // const objectKey = Date.now() + ' ' + file.originalname;
@@ -36,7 +37,7 @@ async function uploadToMinio(file) {
   }
 
 
-  await minioClient.fPutObject(bucketName, objectKey, file.path, metaData, (err, etag) => {
+  await minioClient.fPutObject(bucketName, objectKey, file.path, metaData, (err:any, etag:any) => {
       if (err) {
           console.log(err);
           return null;
@@ -117,15 +118,15 @@ router.route('/createPost').post(authenticateToken,upload.single("image") ,async
     }
 });
 
-const getImageFromMinio = (imageId) => {
+const getImageFromMinio = (imageId:any) => {
   return new Promise((resolve, reject) => {
-      minioClient.getObject('linkedin', imageId, (err, dataStream) => {
+      minioClient.getObject('linkedin', imageId, (err:any, dataStream:any) => {
           if (err) {
               // Handle any error when fetching the image from MinIO
               reject(err);
           } else {
-              const chunks = [];
-              dataStream.on('data', (chunk) => {
+              const chunks:any = [];
+              dataStream.on('data', (chunk:any) => {
                   chunks.push(chunk);
               });
 
@@ -135,7 +136,7 @@ const getImageFromMinio = (imageId) => {
                   resolve(imageData);
               });
 
-              dataStream.on('error', (err) => {
+              dataStream.on('error', (err:any) => {
                   reject(err);
               });
           }
@@ -148,7 +149,7 @@ router.route('/getPosts').get(authenticateToken ,async(req:Request, res:Response
     const posts = await Post.find(); // Fetch all posts from the collection
     posts.reverse();
     const postsWithUsername = await Promise.all(
-      posts.map(async (post) => {
+      posts.map(async (post:any) => {
           const user = await User.findOne({ email: post.email });
           // const imageBuffer:any = post.imageId ? await getImageFromMinio(post.imageId) : null;
           // const base64String = imageBuffer ? imageBuffer.toString('base64') : null;
@@ -177,7 +178,7 @@ router.route('/getClickedPost').post(authenticateToken ,async (req: Request, res
       console.log('post: ' + post);
       res.json(post);
   }catch(err){
-      res.status(404).json({message: err.message});
+      res.status(404).json({message: err});
   }
 })
 module.exports = router;

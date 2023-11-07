@@ -16,7 +16,7 @@ const Notification:React.FC=()=> {
 
       const accessToken = sessionStorage.getItem('accessToken')
       console.log("accessToken : ", accessToken);   
-       const response = await axios.get("http://localhost:5050/notifications/getNotifications", {
+       const response = await axios.get("http://localhost:5052/notifications/getNotifications", {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }});
@@ -48,9 +48,7 @@ const Notification:React.FC=()=> {
             <Col md={6}>  
             <h2 style={headerStyles}>Notifications</h2>    
             {notifications.map((notification, index) => (
-            // <div className='justify-content-center d-flex w-6' >  
                  <NotificationItem key={index} postId = {notification.postId} userName={notification.userName} context={' has posted recently'} createdAt={notification.createdAt}  />
-            // </div>
             ))} 
             </Col>
             <Col md={3}>

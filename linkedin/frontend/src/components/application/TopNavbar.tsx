@@ -3,8 +3,32 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { LinkedinFilled } from '@ant-design/icons';
 import {Row, Col, Form, Button} from 'react-bootstrap'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const TopNavbar:React.FC =()=> {
+  const [textFieldValue, setTextFieldValue] = useState('');
+
+  useEffect(() => {
+    const getName =async()=>{
+    try {
+      console.log('useEffect');
+
+      const accessToken = sessionStorage.getItem('accessToken')
+      console.log("accessToken : ", accessToken);   
+       const response = await axios.get("http://localhost:5050/users/getName",
+        {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }});
+        setTextFieldValue(response.data);
+    } catch (error) {
+      console.error('Error sending request for useEffect:', error);
+    }
+  }
+  getName();
+  }, []); 
+
   return (
     <>
     <Navbar expand="lg" className="bg-body-tertiary bg-light">
@@ -13,9 +37,11 @@ const TopNavbar:React.FC =()=> {
         <Navbar.Brand href="#home">Linkedin</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto" style={{marginLeft:'250px'}}>
-          <Row style={{marginRight:'100px'}}>
-        <Col sm={4} style={{width:'400px'}} >
+        <span style={{color: 'blue'}}>{textFieldValue}</span>
+
+        <Nav className="me-auto" style={{marginLeft:'210px'}}>
+          <Row style={{marginRight:'80px'}}>
+        <Col sm={4} style={{width:'350px'}} >
           <Form className="d-flex" >
             <Form.Control
               type="search"
@@ -42,3 +68,4 @@ const TopNavbar:React.FC =()=> {
 }
 
 export default TopNavbar;
+
