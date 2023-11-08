@@ -44,13 +44,6 @@ services:
       - ./distributed-backend/posts:/linkedin/posts
       - ./linkedin/posts/node_modules
 
-  # nginx:
-  #   image: nginx:latest
-  #   restart: unless-stopped
-  #   ports:
-  #     - 80:80
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf
   user_db:
     image: mongo:latest
     container_name: user_db

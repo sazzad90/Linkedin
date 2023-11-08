@@ -15,11 +15,12 @@ const Notification:React.FC=()=> {
       console.log('useEffect');
 
       const accessToken = sessionStorage.getItem('accessToken')
-      console.log("accessToken : ", accessToken);   
-       const response = await axios.get("http://localhost:5052/notifications/getNotifications", {
+      console.log(`Bearer ${accessToken}`);   
+      const response = await axios.post("http://localhost/notifications/getNotifications", {
         headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }});
+      'Authorization': `Bearer ${accessToken}`,
+      }
+  });
         setNotifications(response.data);
       console.log('Response from server useEffect data:', response.data);
     } catch (error) {

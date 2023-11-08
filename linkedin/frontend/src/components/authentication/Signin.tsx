@@ -11,18 +11,15 @@ const Signin: React.FC = () => {
   const [password, setPassword] = useState('');
 
   const onFinish = async(values: any) => {
-    console.log('Received values of form: ', values);
     const { email: emailValue, password: passwordValue } = values;
 
     // Update the state variables using the form values
     setEmail(emailValue);
     setPassword(passwordValue);
-    console.log('email: ', emailValue);
-    console.log('password: ', passwordValue);
 
     try {
       // Send a POST request to the server using Axios
-      const response = await axios.post("http://localhost:5050/users/login", {
+      const response = await axios.post("http://localhost/users/login", {
         email: email,
         password: password
       });

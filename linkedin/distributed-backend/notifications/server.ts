@@ -22,11 +22,14 @@ db.on('error', (err:any) => {
     console.log(err);
 })
 db.once('open', () => {
-    console.log('Connected to user database!');
+    console.log('Connected to notification database!');
 })
 
 const notificationRouter = require('./routes/notifications');
 app.use('/notifications', notificationRouter);
+app.get('/notifications', (req:Request,res:Response|any)=>{
+    res.send('hii')    
+});
 
 app.listen(5052,()=>{
      console.log("Notification Server is running on port 5052");

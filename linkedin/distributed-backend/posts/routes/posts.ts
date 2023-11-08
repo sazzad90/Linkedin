@@ -1,3 +1,4 @@
+const axios = require('axios');
 let  Post = require('../models/posts.model');
 let User = require('../models/users.model');
 let  notification = require('../models/notifications.model');
@@ -50,73 +51,119 @@ async function uploadToMinio(file:any) {
 }
 
 
-router.route('/createPost').post(authenticateToken,upload.single("image") ,async(req:Request|any, res:Response) => {
-   try{
-    const content  = req.body.content; 
-    const file = req.file
-    const email = req.email;
-    const firstName = req.firstName;
-    const lastName = req.lastName;
-    console.log("firstName: " + firstName)
+// router.route('/createPost').post(authenticateToken,upload.single("image") ,async(req:Request|any, res:Response) => {
+//    try{
+//     const content  = req.body.content; 
+//     const file = req.file
+//     const email = req.email;
+//     const firstName = req.firstName;
+//     const lastName = req.lastName;
+//     console.log("firstName: " + firstName)
 
-    let _imageId = null
-    let imageId = null
+//     let _imageId = null
+//     let imageId = null
 
-    if(file){
-        _imageId =  await uploadToMinio(file)
-    }
-    imageId = _imageId? _imageId : null
+//     if(file){
+//         _imageId =  await uploadToMinio(file)
+//     }
+//     imageId = _imageId? _imageId : null
 
-    console.log("imageId: " + imageId)
+//     console.log("imageId: " + imageId)
 
-    const newPost = new Post({ 
-        email,
-        firstName,
-        lastName,
-        content,
-        imageId,
-     });
-      await newPost.save();
+//     const newPost = new Post({ 
+//         email,
+//         firstName,
+//         lastName,
+//         content,
+//         imageId,
+//      });
+//       await newPost.save();
 
-      const postId = newPost._id;
-      console.log("content:", newPost.content);
-  //     const currentUser = await User.findOne({ 
-  //       email: email
-  //  });
-  //     const currentUserId = currentUser._id;
-      const allUsers = await User.find({})
-      const seen:boolean = false;
+//       const postId = newPost._id;
+//       console.log("content:", newPost.content);
 
-      for (const user of allUsers) {
-        const receiverEmail = user.email;
+//       const allUsers = await User.find({})
+//       const seen:boolean = false;
+
+//       for (const user of allUsers) {
+//         const receiverEmail = user.email;
         
-        if(receiverEmail === email) console.log('same user');
+//         if(receiverEmail === email) console.log('same user');
         
-        else{
-          console.log('receiverId: ', receiverEmail);
-          console.log('currentUserId: ', email);
+//         else{
+//           console.log('receiverId: ', receiverEmail);
+//           console.log('currentUserId: ', email);
           
-        const newNotification = new notification({ 
-          postId,
-          receiverEmail,
-          seen 
-        });
+//         const newNotification = new notification({ 
+//           postId,
+//           receiverEmail,
+//           seen 
+//         });
       
-        try {
-          await newNotification.save();
-          console.log('Notification saved for user:', user.username); // Optional: Print a message for each user
-        } catch (error) {
-          console.error('Error saving notification:', error);
-          // Handle the error appropriately, e.g., log it, continue with the next user, etc.
-        }
+//         try {
+//           await newNotification.save();
+//           console.log('Notification saved for user:', user.username); // Optional: Print a message for each user
+//         } catch (error) {
+//           console.error('Error saving notification:', error);
+//           // Handle the error appropriately, e.g., log it, continue with the next user, etc.
+//         }
+//       }
+//       }
+//       res.json('post posted!');
+//     } catch (err) {
+//       console.log("post not inserted")
+//       res.status(400).json('error: ' + err);
+//     }
+// });
+
+
+
+
+router.route('/createPost').post(authenticateToken,upload.single("image") ,async(req:Request|any, res:Response) => {
+  try{
+   const content  = req.body.content; 
+   const file = req.file
+   const email = req.email;
+   const firstName = req.firstName;
+   const lastName = req.lastName;
+
+   let _imageId = null
+   let imageId = null
+
+   console.log('creating Posts');
+   
+
+   if(file){
+       _imageId =  await uploadToMinio(file)
+   }
+   imageId = _imageId? _imageId : null
+
+   const newPost = new Post({ 
+       email,
+       firstName,
+       lastName,
+       content,
+       imageId,
+    });
+     await newPost.save();
+
+     const postId = newPost._id;
+    //create notification
+    try {
+        const response = await axios.post(`http://host.docker.internal/notifications/createNotification`, {postId: postId});
+        console.log('notification response : ', response.data);
+        res.json('notification saved!');
+      } catch (error) {
+        console.error('Error for creating notification: ' + error);
+        res.status(400).json('error for create notification: ' + error);
       }
-      }
-      res.json('post posted!');
-    } catch (err) {
-      console.log("post not inserted")
-      res.status(400).json('error: ' + err);
-    }
+     } catch (err) {
+     console.log("post not inserted")
+     res.status(400).json('error: ' + err);
+   }
 });
+
+
 
 const getImageFromMinio = (imageId:any) => {
   return new Promise((resolve, reject) => {
@@ -175,6 +222,20 @@ router.route('/getClickedPost').post(authenticateToken ,async (req: Request, res
       console.log('postID: ' + _id);
       
       const post = await Post.findOne({ _id }).exec();
+      console.log('post: ' + post);
+      res.json(post);
+  }catch(err){
+      res.status(404).json({message: err});
+  }
+})
+
+
+router.route('/getPost').post(async (req: Request|any, res: Response) => {
+  try{
+      const _id  = req.body.postId;
+      console.log('postID: ' + _id );
+      
+      const post = await Post.findById(_id).exec();
       console.log('post: ' + post);
       res.json(post);
   }catch(err){

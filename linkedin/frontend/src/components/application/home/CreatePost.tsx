@@ -13,8 +13,8 @@ const CreatePost:React.FC= ()=> {
       console.log('useEffect');
 
       const accessToken = sessionStorage.getItem('accessToken')
-      console.log("accessToken : ", accessToken);   
-       const response = await axios.get("http://localhost:5051/posts/getPosts", {
+      console.log("accessTokenX : ", accessToken);   
+       const response = await axios.get("http://localhost/posts/getPosts", {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }});
@@ -66,7 +66,7 @@ const CreatePost:React.FC= ()=> {
         formData.append('content', postContent); // Append the content field
         formData.append('image', imageDetails); 
 
-        const response = await axios.post("http://localhost:5051/posts/createPost",formData,{
+        const response = await axios.post("http://localhost/posts/createPost",formData,{
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             "Content-Type" : 'multipart/form-data'

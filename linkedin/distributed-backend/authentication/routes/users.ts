@@ -67,13 +67,11 @@ router.route('/login').post( async (req: Request, res: Response) => {
     const isPasswordCorrect = await comparePassword(password, user.password);
     if (!isPasswordCorrect) {
       return res.status(401).json('Invalid password');
-    }  
-    console.log('here');
-     
+    }       
     const accessToken = jwt.sign(user.toJSON(), accessTokenSecret);
-
-    console.log('not here');
     
+    console.log('login successful');
+
       res.json({
        accessToken: accessToken,
        message: 'Login successful',
@@ -99,5 +97,19 @@ router.route('/login').post( async (req: Request, res: Response) => {
       res.status(400).json('error: ' + err);
   }
 })   
+
+
+router.route('/fetchAllUsers').get(async (req: Request|any, res: Response) => {
+  try {
+    console.log('Fetching users');
+    
+    const users = await User.find()
+    console.log('users: ', users)
+    res.json(users);
+  
+} catch (err) {
+    res.status(500).json({ message: 'Internal server error' });
+}
+})  
 
 module.exports = router;

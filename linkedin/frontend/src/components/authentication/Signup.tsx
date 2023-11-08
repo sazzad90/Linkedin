@@ -28,7 +28,7 @@ const Signup: React.FC = () => {
 
     try {
       // Send a POST request to the server using Axios
-      const response = await axios.post("http://localhost:5050/users/register", {
+      const response = await axios.post("http://localhost/users/register", {
         email: email,
         firstName: firstName,
         lastName: lastName,

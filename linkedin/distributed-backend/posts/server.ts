@@ -1,3 +1,4 @@
+const axios = require('axios');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -15,7 +16,7 @@ app.use(express.json());
 //     console.error(err);
 //   });
 
-mongoose.connect('mongodb://post:27017/linkedin-posts', { useNewUrlParser: true, useUnifiedTopology: true, directConnection: true });
+mongoose.connect('mongodb://post_db:27017/linkedin-posts', { useNewUrlParser: true, useUnifiedTopology: true, directConnection: true });
 const db = mongoose.connection;
 
 db.on('error', (err:any) => {
@@ -28,6 +29,9 @@ db.once('open', () => {
 
 const postRouter = require('./routes/posts');
 app.use('/posts', postRouter);
+app.get('/posts',(req:any,res:any)=>{
+    res.send("Post server")
+})
 
 app.listen(5051,()=>{
      console.log("Post Server is running on port 5051");

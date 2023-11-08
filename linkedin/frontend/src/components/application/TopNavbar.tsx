@@ -10,13 +10,13 @@ const TopNavbar:React.FC =()=> {
   const [textFieldValue, setTextFieldValue] = useState('');
 
   useEffect(() => {
-    const getName =async()=>{
+    const getName = async () =>{
     try {
       console.log('useEffect');
 
       const accessToken = sessionStorage.getItem('accessToken')
       console.log("accessToken : ", accessToken);   
-       const response = await axios.get("http://localhost:5050/users/getName",
+       const response = await axios.get("http://localhost/users/getName",
         {
         headers: {
           'Authorization': `Bearer ${accessToken}`

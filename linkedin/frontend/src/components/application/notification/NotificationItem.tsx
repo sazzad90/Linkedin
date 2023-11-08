@@ -19,7 +19,7 @@ const NotificationItem: React.FC<NotificationProps> = ({ postId, userName, conte
   
         const accessToken = sessionStorage.getItem('accessToken')
         console.log("accessToken : ", accessToken);   
-         const response = await axios.post("http://localhost:5052/notifications/checkedNotifications",{
+         const response = await axios.post("http://localhost/notifications/checkedNotifications",{
           postId:postId
          }, {
           headers: {
