@@ -10,32 +10,27 @@ interface CustomRequest extends Request {
     email: string; // Change the type to match the data type of 'email'
   }
 
-router.post('/getNotifications', authenticateToken, async (req: Request|any, res: Response|any) => {
-
-// router.route('/getNotifications').post(authenticateToken ,async (req: Request|any, res: Response) => {
+router.route('/getNotifications').get(authenticateToken ,async (req: Request|any, res: Response) => {
     try{
-        const email = req.email;
-        console.log('email', email);
-        
+        const email = req.email;        
         const notifications = await Notification.find({
              receiverEmail: email,
              seen:false
             }); 
         notifications.reverse();
-        console.log('notifications: ', notifications)
 
         const notificationsWithUsername = await Promise.all(
-            notifications.map(async (notification:any) => {
-                const post = await Post.findOne({ _id: notification.postId });      
+            notifications.map(async (notification:any) => {                
+                const post = await axios.post(`http://192.168.0.105:5051/posts/getPostForNotification`, {postId: notification.postId});
                 return { 
                     ...notification.toObject(), 
-                    userName: post.firstName + ' ' + post.lastName
+                    userName: post.data.firstName + ' ' + post.data.lastName
                 };
             })
           );
 
         console.log('notifications with username: ', notificationsWithUsername);
-        res.json({"notice":notificationsWithUsername});
+        res.send(notificationsWithUsername);
     }catch (err) {
         res.status(400).json('error: ' + err);
     }
@@ -58,14 +53,13 @@ router.route('/checkedNotifications').post(authenticateToken ,async (req: Custom
 })
 
 //create notif.
+
 router.post('/createNotification', async (req: Request, res: Response) => {
     try{  
-        console.log(req.body.postId);
+        console.log("notification de")
         const postId:string = req.body.postId;
-        const users:any = await axios.get('http://host.docker.internal/users/fetchAllUsers');
-        console.log('users : ',users);
-        const post:any = await axios.post(`http://host.docker.internal/posts/getPost`, {postId: postId});
-        console.log('post : ',post)
+        const users:any = await axios.get('http://192.168.0.105:5050/users/fetchAllUsers');
+        const post:any = await axios.post(`http://192.168.0.105:5051/posts/getPost`, {postId: postId});
 
         const postEmail = post.data.email;
 
@@ -77,10 +71,14 @@ router.post('/createNotification', async (req: Request, res: Response) => {
                 const seen:boolean = false;
 
                 const newNotification = new Notification({postId, receiverEmail, seen})
-                await newNotification.save()
+                console.log('new notification : ', newNotification);
+
+                await newNotification.save();
+                const notice = Notification.find();
+
+                console.log('new notification : ', notice)
             }
         })
-        console.log('notification created successfully');
         
         res.json("notification created successfully")
     }

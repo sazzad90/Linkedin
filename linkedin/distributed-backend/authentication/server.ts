@@ -17,9 +17,9 @@ db.once('open', () => {
 
 const userRouter = require('./routes/users');
 app.use('/users', userRouter);
-app.get('/users',(req:any,res:any)=>{
-    res.send("......................")
-})
+// app.get('/users',(req:any,res:any)=>{
+//     res.send("......................")
+// })
 
 app.listen(5050,()=>{
      console.log("User Server is running on port 5050");

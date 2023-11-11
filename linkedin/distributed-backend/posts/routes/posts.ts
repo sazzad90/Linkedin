@@ -10,17 +10,17 @@ const multer = require('multer')
 const path = require('path')
 const minioClient = require('../minio/minioClient')
 
+// const hostDocker = '192.168.0.105';
+
 import { Request, Response} from 'express';
 
 const storage = multer.diskStorage({
   destination : (req:any, file:any, cb:any)=>{
       console.log(file)
-      // console.log("original name : ", file.originalname)
-      cb(null, './public/images')
+      cb(null, './images')
   },
   filename :(req:any,file:any, cb:any) => {
       const newFilename = Date.now() + path.extname(file.originalname);
-      // console.log('filename : ', newFilename)
       cb(null, newFilename)
   },
  
@@ -30,8 +30,6 @@ const upload = multer({storage: storage})
 
 async function uploadToMinio(file:any) {
   const bucketName = "linkedin";
-  console.log('checking filenname: ', file.filename);
-  // const objectKey = Date.now() + ' ' + file.originalname;
   const objectKey = file.filename;
   const metaData = {
       'Content-Type': file.mimetype,
@@ -44,8 +42,6 @@ async function uploadToMinio(file:any) {
           return null;
       }
   }); //bucketName, objectKey
-
-  console.log("object key: " + objectKey)
 
   return objectKey;
 }
@@ -119,7 +115,7 @@ async function uploadToMinio(file:any) {
 
 
 
-router.route('/createPost').post(authenticateToken,upload.single("image") ,async(req:Request|any, res:Response) => {
+router.route('/createPost').post(authenticateToken, upload.single("image") ,async(req:Request|any, res:Response) => {
   try{
    const content  = req.body.content; 
    const file = req.file
@@ -134,10 +130,15 @@ router.route('/createPost').post(authenticateToken,upload.single("image") ,async
    
 
    if(file){
-       _imageId =  await uploadToMinio(file)
-   }
-   imageId = _imageId? _imageId : null
+    console.log('got image');
 
+       _imageId =  await uploadToMinio(file)
+       console.log('image id: ' + _imageId);
+       
+   }
+
+   imageId = _imageId? _imageId : null
+   console.log('123');
    const newPost = new Post({ 
        email,
        firstName,
@@ -150,16 +151,31 @@ router.route('/createPost').post(authenticateToken,upload.single("image") ,async
      const postId = newPost._id;
     //create notification
     try {
-        const response = await axios.post(`http://host.docker.internal/notifications/createNotification`, {postId: postId});
+        const response = await axios.post(`http://192.168.0.105:5052/notifications/createNotification`, {postId: postId});
         console.log('notification response : ', response.data);
         res.json('notification saved!');
-      } catch (error) {
-        console.error('Error for creating notification: ' + error);
-        res.status(400).json('error for create notification: ' + error);
+      } catch (error:any) {
+        // res.status(400).json('error for create notification: ' + error);
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          console.error('Server responded with an error:', error.response.status);
+          console.error('Error details:', error.response.data);
+          res.status(400).json('Error for creating notification: ' + error.response.data);
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error('No response received from the server');
+          res.status(500).json('No response received from the server');
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error('Error setting up the request:', error.message);
+          res.status(500).json('Error setting up the request: ' + error.message);
+        }
       }
+      
      } catch (err) {
      console.log("post not inserted")
      res.status(400).json('error: ' + err);
+     
    }
 });
 
@@ -191,6 +207,25 @@ const getImageFromMinio = (imageId:any) => {
   });
 };
 
+
+
+router.route('/getPostForNotification').post(async(req:Request, res:Response) => {
+  try{
+    console.log('here');
+    
+    const postId  = req.body.postId; 
+    const post = await Post.findOne({ _id: postId }); 
+    console.log('fetching post for notification: ' + post);
+      
+    res.json(post)
+   } catch (err) {
+     res.status(400).json('error sending post from server: ' + err);
+   }
+});
+
+
+
+
 router.route('/getPosts').get(authenticateToken ,async(req:Request, res:Response) => {
   try{
     const posts = await Post.find(); // Fetch all posts from the collection
@@ -206,7 +241,6 @@ router.route('/getPosts').get(authenticateToken ,async(req:Request, res:Response
           return { 
               ...post.toObject(), 
               username: user ? user.username : 'Unknown',
-              // image:image
           };
       })
     );

@@ -60,5 +60,9 @@
   "devDependencies": {
     "@types/react-router-dom": "^5.3.3",
     "ts-node": "^10.9.1"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.tsx",
+  "author": "sazzad",
+  "license": "ISC"
 }

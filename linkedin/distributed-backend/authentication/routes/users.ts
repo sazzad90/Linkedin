@@ -55,6 +55,7 @@ async function comparePassword(inputPassword: string, hashedPassword: string): P
 
 router.route('/login').post( async (req: Request, res: Response) => {
    try {
+    
       const { email, password } = req.body; 
       const user = await User.findOne({ 
         email: email
@@ -65,11 +66,13 @@ router.route('/login').post( async (req: Request, res: Response) => {
      }
 
     const isPasswordCorrect = await comparePassword(password, user.password);
+    
     if (!isPasswordCorrect) {
       return res.status(401).json('Invalid password');
     }       
     const accessToken = jwt.sign(user.toJSON(), accessTokenSecret);
-    
+    console.log('here login');
+
     console.log('login successful');
 
       res.json({

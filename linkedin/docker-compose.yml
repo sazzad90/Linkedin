@@ -4,7 +4,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      # dockerfile: Dockerfile
+      network: host
     container_name: frontend
     image: frontend
 
@@ -14,7 +14,9 @@ services:
     tty: true
 
   authentication:
-    build: ./distributed-backend/authentication
+    build: 
+      context: ./distributed-backend/authentication
+      network: host
     container_name: authentication
     image: authentication
     ports:
@@ -24,7 +26,9 @@ services:
       - ./linkedin/authentication/node_modules
   
   notifications:
-    build: ./distributed-backend/notifications
+    build: 
+      context: ./distributed-backend/notifications
+      network: host
     container_name: notifications
     image: notifications
     ports:
@@ -34,7 +38,9 @@ services:
       - ./linkedin/notifications/node_modules
 
   posts:
-    build: ./distributed-backend/posts
+    build: 
+      context: ./distributed-backend/posts
+      network: host 
     container_name: posts
     image: posts
 

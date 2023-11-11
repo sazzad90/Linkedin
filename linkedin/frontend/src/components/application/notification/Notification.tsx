@@ -16,7 +16,7 @@ const Notification:React.FC=()=> {
 
       const accessToken = sessionStorage.getItem('accessToken')
       console.log(`Bearer ${accessToken}`);   
-      const response = await axios.post("http://localhost/notifications/getNotifications", {
+      const response = await axios.get("http://localhost/notifications/getNotifications", {
         headers: {
       'Authorization': `Bearer ${accessToken}`,
       }
@@ -28,6 +28,7 @@ const Notification:React.FC=()=> {
     }
   }
   fetchNotifications();
+  
   },[]);
 
       const headerStyles: React.CSSProperties = {
@@ -39,6 +40,12 @@ const Notification:React.FC=()=> {
         borderBottom: '1px solid #ccc',
         paddingBottom: '10px',
       };
+
+
+
+  
+
+      
   return (
     <>
     <Container fluid className="notification-container">
@@ -48,7 +55,7 @@ const Notification:React.FC=()=> {
             <Col md={3}> </Col>
             <Col md={6}>  
             <h2 style={headerStyles}>Notifications</h2>    
-            {notifications.map((notification, index) => (
+            {Array.isArray(notifications) && notifications.map((notification, index) => (
                  <NotificationItem key={index} postId = {notification.postId} userName={notification.userName} context={' has posted recently'} createdAt={notification.createdAt}  />
             ))} 
             </Col>
